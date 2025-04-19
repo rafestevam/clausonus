@@ -73,3 +73,7 @@ quarkus.log
 dev-loja
 *.pid
 .env
+
+# Utils Shell Scripts
+**/utils
+**/utils/** 

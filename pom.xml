@@ -14,10 +14,10 @@
 
     <modules>
         <module>clausonus-loja</module>
+        <module>clausonus-funcionario</module>
         <!-- Outros módulos serão adicionados aqui no futuro -->
         <!-- 
-        <module>clausonus-funcionario</module>
-        <module>clausonus-cliente</module>
+        <module>clausonus-cliente</module>ß
         <module>clausonus-produto</module>
         <module>clausonus-venda</module>
         <module>clausonus-pagamento</module>
