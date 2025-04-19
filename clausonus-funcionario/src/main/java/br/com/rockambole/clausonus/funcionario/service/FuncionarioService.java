@@ -11,7 +11,6 @@ import jakarta.ws.rs.NotFoundException;
 
 import br.com.rockambole.clausonus.funcionario.dto.FuncionarioDTO;
 import br.com.rockambole.clausonus.funcionario.entity.Funcionario;
-import br.com.rockambole.clausonus.funcionario.exception.BusinessException;
 import br.com.rockambole.clausonus.funcionario.repository.FuncionarioRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -132,13 +131,13 @@ public class FuncionarioService {
         // Verifica se já existe funcionário com o mesmo CPF
         Optional<Funcionario> existentePorCpf = funcionarioRepository.buscarPorCpf(funcionarioDTO.getCpf());
         if (existentePorCpf.isPresent()) {
-            throw new BusinessException("Já existe um funcionário cadastrado com o CPF: " + funcionarioDTO.getCpf());
+            throw new IllegalArgumentException("Já existe um funcionário cadastrado com o CPF: " + funcionarioDTO.getCpf());
         }
         
         // Verifica se já existe funcionário com o mesmo login
         Optional<Funcionario> existentePorLogin = funcionarioRepository.buscarPorLogin(funcionarioDTO.getLogin());
         if (existentePorLogin.isPresent()) {
-            throw new BusinessException("Já existe um funcionário cadastrado com o login: " + funcionarioDTO.getLogin());
+            throw new IllegalArgumentException("Já existe um funcionário cadastrado com o login: " + funcionarioDTO.getLogin());
         }
         
         // Criptografa a senha
@@ -172,7 +171,7 @@ public class FuncionarioService {
         if (!funcionario.getCpf().equals(funcionarioDTO.getCpf())) {
             Optional<Funcionario> existentePorCpf = funcionarioRepository.buscarPorCpf(funcionarioDTO.getCpf());
             if (existentePorCpf.isPresent() && !existentePorCpf.get().id.equals(id)) {
-                throw new BusinessException("Já existe um funcionário cadastrado com o CPF: " + funcionarioDTO.getCpf());
+                throw new IllegalArgumentException("Já existe um funcionário cadastrado com o CPF: " + funcionarioDTO.getCpf());
             }
         }
         
@@ -180,7 +179,7 @@ public class FuncionarioService {
         if (!funcionario.getLogin().equals(funcionarioDTO.getLogin())) {
             Optional<Funcionario> existentePorLogin = funcionarioRepository.buscarPorLogin(funcionarioDTO.getLogin());
             if (existentePorLogin.isPresent() && !existentePorLogin.get().id.equals(id)) {
-                throw new BusinessException("Já existe um funcionário cadastrado com o login: " + funcionarioDTO.getLogin());
+                throw new IllegalArgumentException("Já existe um funcionário cadastrado com o login: " + funcionarioDTO.getLogin());
             }
         }
         
@@ -205,7 +204,7 @@ public class FuncionarioService {
      * @param senhaAtual Senha atual
      * @param novaSenha Nova senha
      * @throws NotFoundException se o funcionário não for encontrado
-     * @throws BusinessException se a senha atual estiver incorreta
+     * @throws IllegalArgumentException se a senha atual estiver incorreta
      */
     @Transactional
     public void atualizarSenha(Long id, String senhaAtual, String novaSenha) {
@@ -216,7 +215,7 @@ public class FuncionarioService {
         
         // Verifica se a senha atual está correta
         if (!senhaService.verificar(senhaAtual, funcionario.getSenha())) {
-            throw new BusinessException("Senha atual incorreta");
+            throw new IllegalArgumentException("Senha atual incorreta");
         }
         
         // Criptografa e atualiza a nova senha
