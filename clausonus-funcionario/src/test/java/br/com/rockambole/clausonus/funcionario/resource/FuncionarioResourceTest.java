@@ -14,22 +14,20 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 
 import br.com.rockambole.clausonus.funcionario.dto.FuncionarioDTO;
 import br.com.rockambole.clausonus.funcionario.dto.SenhaDTO;
 import br.com.rockambole.clausonus.funcionario.service.FuncionarioService;
+import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.ContentType;
 import jakarta.ws.rs.NotFoundException;
 
 @QuarkusTest
 public class FuncionarioResourceTest {
 
-    @InjectMock
+    @Mock
     FuncionarioService funcionarioService;
 
     @Test
@@ -41,7 +39,7 @@ public class FuncionarioResourceTest {
 
         // Executar e verificar
         given()
-            .when().get("/api/funcionarios")
+            .when().get("/clausonus/api/funcionarios")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -61,7 +59,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .queryParam("ativos", true)
-            .when().get("/api/funcionarios")
+            .when().get("/clausonus/api/funcionarios")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -80,7 +78,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("id", 1)
-            .when().get("/api/funcionarios/{id}")
+            .when().get("/clausonus/api/funcionarios/{id}")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -100,7 +98,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("id", 999)
-            .when().get("/api/funcionarios/{id}")
+            .when().get("/clausonus/api/funcionarios/{id}")
             .then()
                 .statusCode(404);
     }
@@ -114,7 +112,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .queryParam("nome", "Funcionário")
-            .when().get("/api/funcionarios/busca")
+            .when().get("/clausonus/api/funcionarios/busca")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -132,7 +130,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("cargo", "Analista")
-            .when().get("/api/funcionarios/cargo/{cargo}")
+            .when().get("/clausonus/api/funcionarios/cargo/{cargo}")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -160,7 +158,7 @@ public class FuncionarioResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(funcionarioDTO)
-            .when().post("/api/funcionarios")
+            .when().post("/clausonus/api/funcionarios")
             .then()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
@@ -188,7 +186,7 @@ public class FuncionarioResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(funcionarioDTO)
-            .when().post("/api/funcionarios")
+            .when().post("/clausonus/api/funcionarios")
             .then()
                 .statusCode(400); // Bad Request devido à validação
     }
@@ -211,7 +209,7 @@ public class FuncionarioResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(funcionarioDTO)
-            .when().post("/api/funcionarios")
+            .when().post("/clausonus/api/funcionarios")
             .then()
                 .statusCode(400);
     }
@@ -236,7 +234,7 @@ public class FuncionarioResourceTest {
             .contentType(ContentType.JSON)
             .pathParam("id", 1)
             .body(funcionarioDTO)
-            .when().put("/api/funcionarios/{id}")
+            .when().put("/clausonus/api/funcionarios/{id}")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -265,7 +263,7 @@ public class FuncionarioResourceTest {
             .contentType(ContentType.JSON)
             .pathParam("id", 999)
             .body(funcionarioDTO)
-            .when().put("/api/funcionarios/{id}")
+            .when().put("/clausonus/api/funcionarios/{id}")
             .then()
                 .statusCode(404);
     }
@@ -281,7 +279,7 @@ public class FuncionarioResourceTest {
             .contentType(ContentType.JSON)
             .pathParam("id", 1)
             .body(senhaDTO)
-            .when().put("/api/funcionarios/{id}/senha")
+            .when().put("/clausonus/api/funcionarios/{id}/senha")
             .then()
                 .statusCode(204);
 
@@ -300,7 +298,7 @@ public class FuncionarioResourceTest {
             .contentType(ContentType.JSON)
             .pathParam("id", 999)
             .body(senhaDTO)
-            .when().put("/api/funcionarios/{id}/senha")
+            .when().put("/clausonus/api/funcionarios/{id}/senha")
             .then()
                 .statusCode(404);
     }
@@ -317,7 +315,7 @@ public class FuncionarioResourceTest {
             .contentType(ContentType.JSON)
             .pathParam("id", 1)
             .body(senhaDTO)
-            .when().put("/api/funcionarios/{id}/senha")
+            .when().put("/clausonus/api/funcionarios/{id}/senha")
             .then()
                 .statusCode(400);
     }
@@ -332,7 +330,7 @@ public class FuncionarioResourceTest {
         given()
             .pathParam("id", 1)
             .queryParam("ativo", false)
-            .when().put("/api/funcionarios/{id}/status")
+            .when().put("/clausonus/api/funcionarios/{id}/status")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -350,7 +348,7 @@ public class FuncionarioResourceTest {
         given()
             .pathParam("id", 999)
             .queryParam("ativo", false)
-            .when().put("/api/funcionarios/{id}/status")
+            .when().put("/clausonus/api/funcionarios/{id}/status")
             .then()
                 .statusCode(404);
     }
@@ -363,7 +361,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("id", 1)
-            .when().delete("/api/funcionarios/{id}")
+            .when().delete("/clausonus/api/funcionarios/{id}")
             .then()
                 .statusCode(204);
     }
@@ -377,7 +375,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("id", 999)
-            .when().delete("/api/funcionarios/{id}")
+            .when().delete("/clausonus/api/funcionarios/{id}")
             .then()
                 .statusCode(404);
     }

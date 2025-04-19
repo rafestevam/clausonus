@@ -15,23 +15,14 @@
     <modules>
         <module>clausonus-loja</module>
         <module>clausonus-funcionario</module>
-        <!-- Outros módulos serão adicionados aqui no futuro -->
-        <!-- 
-        <module>clausonus-cliente</module>ß
-        <module>clausonus-produto</module>
-        <module>clausonus-venda</module>
-        <module>clausonus-pagamento</module>
-        <module>clausonus-fechamento</module>
-        -->
-    </modules>
+        </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        
-        <!-- Versões das dependências -->
+
         <quarkus.platform.version>3.2.0.Final</quarkus.platform.version>
         <quarkus-plugin.version>3.2.0.Final</quarkus-plugin.version>
         <compiler-plugin.version>3.11.0</compiler-plugin.version>
@@ -46,7 +37,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Quarkus BOM -->
             <dependency>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-bom</artifactId>
@@ -54,77 +44,54 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            
-            <!-- Lombok -->
+
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
-            
-            <!-- MapStruct para mapeamento de objetos -->
             <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
-                <version>${mapstruct.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct-processor</artifactId>
-                <version>${mapstruct.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            
-            <!-- Jackson para JSON -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
             </dependency>
-            
-            <!-- JUnit 5 -->
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${junit.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!--
+
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
-            -->
-            
-            <!-- Mockito -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
-            
-            <!-- REST Assured para testes de API -->
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-junit5</artifactId>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>io.rest-assured</groupId>
                 <artifactId>rest-assured</artifactId>
-                <version>${rest-assured.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -133,7 +100,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Maven Compiler Plugin -->
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${compiler-plugin.version}</version>
@@ -153,8 +119,7 @@
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
-                
-                <!-- Quarkus Maven Plugin -->
+
                 <plugin>
                     <groupId>io.quarkus</groupId>
                     <artifactId>quarkus-maven-plugin</artifactId>
@@ -170,8 +135,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                
-                <!-- Maven Surefire Plugin -->
+
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
@@ -184,6 +148,15 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
