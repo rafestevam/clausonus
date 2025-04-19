@@ -86,6 +86,7 @@
         </dependency>
         
         <!-- MapStruct para mapeamento de objetos -->
+        <!--
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
@@ -95,6 +96,7 @@
             <artifactId>mapstruct-processor</artifactId>
             <scope>provided</scope>
         </dependency>
+        -->
         
         <!-- Dependências de teste -->
         <dependency>
@@ -144,6 +146,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <!--
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
@@ -157,7 +160,9 @@
                             <version>${mapstruct.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                    <generatedSourcesDirectory>${project.build.directory}/generated-sources/annotations</generatedSourcesDirectory>
                 </configuration>
+                -->
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>

@@ -1,6 +1,6 @@
 package br.com.rockambole.clausonus.loja.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,18 +10,18 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Entidade que representa uma Loja no sistema
- */
+import java.util.List;
+import java.util.Optional;
+
 @Entity
 @Table(name = "loja")
-public class Loja extends PanacheEntityBase {
-    
+public class Loja extends PanacheEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_loja")
-    private Long id;
-    
+    @Column(name = "id_loja")  // Nome da coluna no banco de dados
+    public Long id;           // Nome do campo na classe Java
+
     @NotBlank(message = "O nome é obrigatório")
     @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
     @Column(name = "nome", length = 100, nullable = false)
@@ -52,15 +52,24 @@ public class Loja extends PanacheEntityBase {
         this.telefone = telefone;
     }
     
+    // Métodos de consulta usando Panache
+    public static List<Loja> listarTodas() {
+        return listAll();
+    }
+    
+    public static Optional<Loja> buscarPorId(Long id) {
+        return findByIdOptional(id);
+    }
+    
+    public static Optional<Loja> buscarPorCnpj(String cnpj) {
+        return find("cnpj", cnpj).firstResultOptional();
+    }
+    
+    public static List<Loja> buscarPorNome(String nome) {
+        return list("nome LIKE ?1", "%" + nome + "%");
+    }
+    
     // Getters e Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getNome() {
         return nome;
     }
@@ -92,24 +101,5 @@ public class Loja extends PanacheEntityBase {
     public void setTelefone(String telefone) {
         this.telefone = telefone;
     }
-    
-    @Override
-    public String toString() {
-        return "Loja [id=" + id + ", nome=" + nome + ", cnpj=" + cnpj + "]";
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        
-        Loja loja = (Loja) o;
-        
-        return id != null ? id.equals(loja.id) : loja.id == null;
-    }
-    
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
+
 }

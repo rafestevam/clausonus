@@ -11,8 +11,7 @@ import jakarta.ws.rs.NotFoundException;
 
 import br.com.rockambole.clausonus.loja.dto.LojaDTO;
 import br.com.rockambole.clausonus.loja.entity.Loja;
-import br.com.rockambole.clausonus.loja.mapper.LojaMapper;
-import br.com.rockambole.clausonus.loja.repository.LojaRepository;
+import br.com.rockambole.clausonus.loja.util.LojaConverter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -22,13 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class LojaService {
     
-    private final LojaRepository lojaRepository;
-    private final LojaMapper lojaMapper;
+    private final LojaConverter lojaConverter;
     
     @Inject
-    public LojaService(LojaRepository lojaRepository, LojaMapper lojaMapper) {
-        this.lojaRepository = lojaRepository;
-        this.lojaMapper = lojaMapper;
+    public LojaService(LojaConverter lojaConverter) {
+        this.lojaConverter = lojaConverter;
     }
     
     /**
@@ -38,8 +35,8 @@ public class LojaService {
      */
     public List<LojaDTO> listarTodas() {
         log.info("Listando todas as lojas");
-        return lojaRepository.listarTodas().stream()
-                .map(lojaMapper::toDto)
+        return Loja.listarTodas().stream()
+                .map(lojaConverter::toDto)
                 .collect(Collectors.toList());
     }
     
@@ -52,8 +49,8 @@ public class LojaService {
      */
     public LojaDTO buscarPorId(Long id) {
         log.info("Buscando loja pelo ID: {}", id);
-        return lojaRepository.buscarPorId(id)
-                .map(lojaMapper::toDto)
+        return Loja.buscarPorId(id)
+                .map(lojaConverter::toDto)
                 .orElseThrow(() -> new NotFoundException("Loja não encontrada com o ID: " + id));
     }
     
@@ -65,8 +62,8 @@ public class LojaService {
      */
     public List<LojaDTO> buscarPorNome(String nome) {
         log.info("Buscando lojas pelo nome: {}", nome);
-        return lojaRepository.buscarPorNome(nome).stream()
-                .map(lojaMapper::toDto)
+        return Loja.buscarPorNome(nome).stream()
+                .map(lojaConverter::toDto)
                 .collect(Collectors.toList());
     }
     
@@ -78,8 +75,8 @@ public class LojaService {
      */
     public Optional<LojaDTO> buscarPorCnpj(String cnpj) {
         log.info("Buscando loja pelo CNPJ: {}", cnpj);
-        return lojaRepository.buscarPorCnpj(cnpj)
-                .map(lojaMapper::toDto);
+        return Loja.buscarPorCnpj(cnpj)
+                .map(lojaConverter::toDto);
     }
     
     /**
@@ -93,15 +90,15 @@ public class LojaService {
         log.info("Salvando loja: {}", lojaDTO);
         
         // Verifica se já existe loja com o mesmo CNPJ
-        Optional<Loja> existente = lojaRepository.buscarPorCnpj(lojaDTO.getCnpj());
+        Optional<Loja> existente = Loja.buscarPorCnpj(lojaDTO.getCnpj());
         if (existente.isPresent()) {
             throw new IllegalArgumentException("Já existe uma loja cadastrada com o CNPJ: " + lojaDTO.getCnpj());
         }
         
-        Loja loja = lojaMapper.toEntity(lojaDTO);
-        lojaRepository.salvar(loja);
+        Loja loja = lojaConverter.toEntity(lojaDTO);
+        loja.persist();
         
-        return lojaMapper.toDto(loja);
+        return lojaConverter.toDto(loja);
     }
     
     /**
@@ -116,26 +113,22 @@ public class LojaService {
     public LojaDTO atualizar(Long id, LojaDTO lojaDTO) {
         log.info("Atualizando loja com ID {}: {}", id, lojaDTO);
         
-        Loja loja = lojaRepository.buscarPorId(id)
+        Loja loja = Loja.buscarPorId(id)
                 .orElseThrow(() -> new NotFoundException("Loja não encontrada com o ID: " + id));
         
         // Verifica se o CNPJ já está sendo usado por outra loja
         if (!loja.getCnpj().equals(lojaDTO.getCnpj())) {
-            Optional<Loja> existente = lojaRepository.buscarPorCnpj(lojaDTO.getCnpj());
-            if (existente.isPresent() && !existente.get().getId().equals(id)) {
+            Optional<Loja> existente = Loja.buscarPorCnpj(lojaDTO.getCnpj());
+            if (existente.isPresent() && !existente.get().id.equals(id)) {
                 throw new IllegalArgumentException("Já existe uma loja cadastrada com o CNPJ: " + lojaDTO.getCnpj());
             }
         }
         
         // Atualiza os campos
-        loja.setNome(lojaDTO.getNome());
-        loja.setEndereco(lojaDTO.getEndereco());
-        loja.setCnpj(lojaDTO.getCnpj());
-        loja.setTelefone(lojaDTO.getTelefone());
+        lojaConverter.updateEntityFromDto(loja, lojaDTO);
+        loja.persist();
         
-        lojaRepository.salvar(loja);
-        
-        return lojaMapper.toDto(loja);
+        return lojaConverter.toDto(loja);
     }
     
     /**
@@ -149,10 +142,10 @@ public class LojaService {
     public boolean excluir(Long id) {
         log.info("Excluindo loja com ID: {}", id);
         
-        if (!lojaRepository.buscarPorId(id).isPresent()) {
+        if (!Loja.buscarPorId(id).isPresent()) {
             throw new NotFoundException("Loja não encontrada com o ID: " + id);
         }
         
-        return lojaRepository.deletar(id);
+        return Loja.deleteById(id);
     }
 }
