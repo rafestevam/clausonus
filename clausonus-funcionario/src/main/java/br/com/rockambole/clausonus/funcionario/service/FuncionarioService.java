@@ -11,7 +11,6 @@ import jakarta.ws.rs.NotFoundException;
 
 import br.com.rockambole.clausonus.funcionario.dto.FuncionarioDTO;
 import br.com.rockambole.clausonus.funcionario.entity.Funcionario;
-import br.com.rockambole.clausonus.funcionario.mapper.FuncionarioMapper;
 import br.com.rockambole.clausonus.funcionario.repository.FuncionarioRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,12 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 public class FuncionarioService {
     
     private final FuncionarioRepository funcionarioRepository;
-    private final FuncionarioMapper funcionarioMapper;
+    private final SenhaService senhaService;
     
     @Inject
-    public FuncionarioService(FuncionarioRepository funcionarioRepository, FuncionarioMapper funcionarioMapper) {
+    public FuncionarioService(FuncionarioRepository funcionarioRepository, SenhaService senhaService) {
         this.funcionarioRepository = funcionarioRepository;
-        this.funcionarioMapper = funcionarioMapper;
+        this.senhaService = senhaService;
     }
     
     /**
@@ -39,7 +38,19 @@ public class FuncionarioService {
     public List<FuncionarioDTO> listarTodos() {
         log.info("Listando todos os funcionários");
         return funcionarioRepository.listarTodos().stream()
-                .map(funcionarioMapper::toDto)
+                .map(Funcionario::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Lista todos os funcionários ativos
+     * 
+     * @return Lista de FuncionarioDTO
+     */
+    public List<FuncionarioDTO> listarAtivos() {
+        log.info("Listando funcionários ativos");
+        return funcionarioRepository.listarAtivos().stream()
+                .map(Funcionario::toDTO)
                 .collect(Collectors.toList());
     }
     
@@ -53,7 +64,7 @@ public class FuncionarioService {
     public FuncionarioDTO buscarPorId(Long id) {
         log.info("Buscando funcionário pelo ID: {}", id);
         return funcionarioRepository.buscarPorId(id)
-                .map(funcionarioMapper::toDto)
+                .map(Funcionario::toDTO)
                 .orElseThrow(() -> new NotFoundException("Funcionário não encontrado com o ID: " + id));
     }
     
@@ -66,7 +77,20 @@ public class FuncionarioService {
     public List<FuncionarioDTO> buscarPorNome(String nome) {
         log.info("Buscando funcionários pelo nome: {}", nome);
         return funcionarioRepository.buscarPorNome(nome).stream()
-                .map(funcionarioMapper::toDto)
+                .map(Funcionario::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Busca funcionários pelo cargo
+     * 
+     * @param cargo Cargo dos funcionários
+     * @return Lista de FuncionarioDTO
+     */
+    public List<FuncionarioDTO> buscarPorCargo(String cargo) {
+        log.info("Buscando funcionários pelo cargo: {}", cargo);
+        return funcionarioRepository.buscarPorCargo(cargo).stream()
+                .map(Funcionario::toDTO)
                 .collect(Collectors.toList());
     }
     
@@ -79,7 +103,7 @@ public class FuncionarioService {
     public Optional<FuncionarioDTO> buscarPorCpf(String cpf) {
         log.info("Buscando funcionário pelo CPF: {}", cpf);
         return funcionarioRepository.buscarPorCpf(cpf)
-                .map(funcionarioMapper::toDto);
+                .map(Funcionario::toDTO);
     }
     
     /**
@@ -91,7 +115,7 @@ public class FuncionarioService {
     public Optional<FuncionarioDTO> buscarPorLogin(String login) {
         log.info("Buscando funcionário pelo login: {}", login);
         return funcionarioRepository.buscarPorLogin(login)
-                .map(funcionarioMapper::toDto);
+                .map(Funcionario::toDTO);
     }
     
     /**
@@ -116,10 +140,16 @@ public class FuncionarioService {
             throw new IllegalArgumentException("Já existe um funcionário cadastrado com o login: " + funcionarioDTO.getLogin());
         }
         
-        Funcionario funcionario = funcionarioMapper.toEntity(funcionarioDTO);
+        // Criptografa a senha
+        String senhaCriptografada = senhaService.criptografar(funcionarioDTO.getSenha());
+        
+        // Cria a entidade a partir do DTO
+        Funcionario funcionario = Funcionario.fromDTO(funcionarioDTO, senhaCriptografada);
+        
+        // Salva a entidade
         funcionarioRepository.salvar(funcionario);
         
-        return funcionarioMapper.toDto(funcionario);
+        return funcionario.toDTO();
     }
     
     /**
@@ -140,7 +170,7 @@ public class FuncionarioService {
         // Verifica se o CPF já está sendo usado por outro funcionário
         if (!funcionario.getCpf().equals(funcionarioDTO.getCpf())) {
             Optional<Funcionario> existentePorCpf = funcionarioRepository.buscarPorCpf(funcionarioDTO.getCpf());
-            if (existentePorCpf.isPresent() && !existentePorCpf.get().getId().equals(id)) {
+            if (existentePorCpf.isPresent() && !existentePorCpf.get().id.equals(id)) {
                 throw new IllegalArgumentException("Já existe um funcionário cadastrado com o CPF: " + funcionarioDTO.getCpf());
             }
         }
@@ -148,25 +178,72 @@ public class FuncionarioService {
         // Verifica se o login já está sendo usado por outro funcionário
         if (!funcionario.getLogin().equals(funcionarioDTO.getLogin())) {
             Optional<Funcionario> existentePorLogin = funcionarioRepository.buscarPorLogin(funcionarioDTO.getLogin());
-            if (existentePorLogin.isPresent() && !existentePorLogin.get().getId().equals(id)) {
+            if (existentePorLogin.isPresent() && !existentePorLogin.get().id.equals(id)) {
                 throw new IllegalArgumentException("Já existe um funcionário cadastrado com o login: " + funcionarioDTO.getLogin());
             }
         }
         
-        // Atualiza os campos
-        funcionario.setNome(funcionarioDTO.getNome());
-        funcionario.setCpf(funcionarioDTO.getCpf());
-        funcionario.setCargo(funcionarioDTO.getCargo());
-        funcionario.setLogin(funcionarioDTO.getLogin());
-        // Não atualiza a senha se estiver em branco
+        // Se for atualizar a senha, criptografa
         if (funcionarioDTO.getSenha() != null && !funcionarioDTO.getSenha().isEmpty()) {
-            funcionario.setSenha(funcionarioDTO.getSenha());
+            funcionarioDTO.setSenha(senhaService.criptografar(funcionarioDTO.getSenha()));
         }
-        funcionario.setAtivo(funcionarioDTO.isAtivo());
         
+        // Atualiza a entidade com os dados do DTO
+        funcionario.fromDTO(funcionarioDTO);
+        
+        // Salva as alterações
         funcionarioRepository.salvar(funcionario);
         
-        return funcionarioMapper.toDto(funcionario);
+        return funcionario.toDTO();
+    }
+    
+    /**
+     * Atualiza a senha de um funcionário
+     * 
+     * @param id ID do funcionário
+     * @param senhaAtual Senha atual
+     * @param novaSenha Nova senha
+     * @throws NotFoundException se o funcionário não for encontrado
+     * @throws IllegalArgumentException se a senha atual estiver incorreta
+     */
+    @Transactional
+    public void atualizarSenha(Long id, String senhaAtual, String novaSenha) {
+        log.info("Atualizando senha do funcionário com ID: {}", id);
+        
+        Funcionario funcionario = funcionarioRepository.buscarPorId(id)
+                .orElseThrow(() -> new NotFoundException("Funcionário não encontrado com o ID: " + id));
+        
+        // Verifica se a senha atual está correta
+        if (!senhaService.verificar(senhaAtual, funcionario.getSenha())) {
+            throw new IllegalArgumentException("Senha atual incorreta");
+        }
+        
+        // Criptografa e atualiza a nova senha
+        String senhaCriptografada = senhaService.criptografar(novaSenha);
+        funcionario.setSenha(senhaCriptografada);
+        
+        funcionarioRepository.salvar(funcionario);
+    }
+    
+    /**
+     * Altera o status de um funcionário (ativo/inativo)
+     * 
+     * @param id ID do funcionário
+     * @param ativo Novo status
+     * @return FuncionarioDTO atualizado
+     * @throws NotFoundException se o funcionário não for encontrado
+     */
+    @Transactional
+    public FuncionarioDTO alterarStatus(Long id, boolean ativo) {
+        log.info("Alterando status do funcionário com ID {}: {}", id, ativo);
+        
+        Funcionario funcionario = funcionarioRepository.buscarPorId(id)
+                .orElseThrow(() -> new NotFoundException("Funcionário não encontrado com o ID: " + id));
+        
+        funcionario.setAtivo(ativo);
+        funcionarioRepository.salvar(funcionario);
+        
+        return funcionario.toDTO();
     }
     
     /**
