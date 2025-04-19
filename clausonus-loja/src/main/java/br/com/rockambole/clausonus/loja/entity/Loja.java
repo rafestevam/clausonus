@@ -1,6 +1,6 @@
 package br.com.rockambole.clausonus.loja.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Entity
 @Table(name = "loja")
-public class Loja extends PanacheEntity {
+public class Loja extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
