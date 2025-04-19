@@ -1,0 +1,4 @@
+**/.mvn
+**/logs
+**/target
+**/.vscode
