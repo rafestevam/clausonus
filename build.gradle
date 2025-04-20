@@ -1,0 +1,66 @@
+plugins {
+    id 'java-library'
+    id 'io.quarkus' version '3.2.0.Final' apply false
+}
+
+allprojects {
+    group = 'br.com.rockambole'
+    version = '1.0.0-SNAPSHOT'
+    
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'io.quarkus'
+    
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    
+    ext {
+        quarkusVersion = '3.2.0.Final'
+        lombokVersion = '1.18.28'
+        mapstructVersion = '1.5.5.Final'
+        jacksonVersion = '2.15.2'
+        junitVersion = '5.10.2'
+        mockitoVersion = '5.4.0'
+        restAssuredVersion = '5.3.1'
+    }
+    
+    dependencies {
+        // Define Quarkus BOM
+        implementation enforcedPlatform("io.quarkus:quarkus-bom:${quarkusVersion}")
+        
+        // Testes
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+        testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+        testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+        testImplementation 'io.quarkus:quarkus-junit5'
+        testImplementation "io.rest-assured:rest-assured:${restAssuredVersion}"
+    }
+    
+    test {
+        useJUnitPlatform()
+        systemProperty 'java.util.logging.manager', 'org.jboss.logmanager.LogManager'
+        
+        // Adicionar esta configuração para exibir detalhes sobre os testes
+        testLogging {
+            events "passed", "skipped", "failed"
+            showStandardStreams = true
+        }
+        
+        // Adicionar esta configuração para garantir que o Gradle execute os testes
+        outputs.upToDateWhen { false }
+    }
+}

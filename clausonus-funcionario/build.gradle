@@ -1,0 +1,61 @@
+description = 'Clausonus - Módulo de Funcionário'
+
+sourceSets {
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+    }
+}
+
+dependencies {
+    // Usando o BOM (Bill of Materials) do Quarkus para gerenciar versões
+    implementation enforcedPlatform("io.quarkus:quarkus-bom:${quarkusVersion}")
+    
+    // Quarkus Core
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-resteasy-reactive'
+    implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
+    
+    // Hibernate e Banco de Dados
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'io.quarkus:quarkus-hibernate-validator'
+    implementation 'io.quarkus:quarkus-jdbc-postgresql'
+    testImplementation 'io.quarkus:quarkus-jdbc-h2'
+    
+    // Ferramentas e Monitoramento
+    implementation 'io.quarkus:quarkus-smallrye-health'
+    implementation 'io.quarkus:quarkus-micrometer'
+    implementation 'io.quarkus:quarkus-smallrye-openapi'
+    implementation 'io.quarkus:quarkus-smallrye-jwt'
+    
+    // Lombok e MapStruct
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    
+    // Testes específicos
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
+    testImplementation 'io.rest-assured:rest-assured'
+}
+
+tasks.withType(JavaCompile) {
+    options.annotationProcessorPath = configurations.annotationProcessor
+}
+
+tasks.named('test') {
+    // Forçar execução dos testes mesmo que nada tenha mudado
+    outputs.upToDateWhen { false }
+    
+    // Adicionar detalhes de log
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
