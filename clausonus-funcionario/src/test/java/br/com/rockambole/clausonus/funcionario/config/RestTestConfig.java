@@ -23,9 +23,7 @@ public class RestTestConfig {
     
     @BeforeEach
     public void setup() {
-        // Configurar base URL para cada teste
-        // Nota: A base path /clausonus será adicionada automaticamente pelo Quarkus
-        // então devemos usar apenas /api nos testes
+        // Configurar base path para cada teste
         RestAssured.basePath = "/api";
     }
     
@@ -37,7 +35,7 @@ public class RestTestConfig {
         public Map<String, String> getConfigOverrides() {
             Map<String, String> config = new HashMap<>();
             
-            // Garantir configurações corretas para o ambiente de teste
+            // Configurações para o ambiente de teste
             config.put("quarkus.http.root-path", "/clausonus");
             config.put("quarkus.resteasy-reactive.path", "/api");
             

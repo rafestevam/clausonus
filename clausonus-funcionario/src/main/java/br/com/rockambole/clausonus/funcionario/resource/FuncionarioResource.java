@@ -32,7 +32,7 @@ import br.com.rockambole.clausonus.funcionario.dto.SenhaDTO;
 import br.com.rockambole.clausonus.funcionario.service.FuncionarioService;
 import jakarta.ws.rs.core.UriBuilder;
 
-@Path("/api/funcionarios")
+@Path("/funcionarios")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Funcionários", description = "Operações relacionadas a funcionários")
@@ -102,12 +102,30 @@ public class FuncionarioResource {
         schema = @Schema(implementation = FuncionarioDTO.class)))
     @APIResponse(responseCode = "400", description = "Dados inválidos ou funcionário já existente")
     public Response salvar(@Valid FuncionarioDTO funcionarioDTO) {
-        FuncionarioDTO salvo = funcionarioService.salvar(funcionarioDTO);
-        return Response
-                .created(UriBuilder.fromResource(FuncionarioResource.class)
-                        .path(String.valueOf(salvo.getId())).build())
-                .entity(salvo)
-                .build();
+        try {
+            FuncionarioDTO salvo = funcionarioService.salvar(funcionarioDTO);
+            
+            // Verificação para evitar NullPointerException
+            if (salvo == null || salvo.getId() == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Não foi possível salvar o funcionário. Dados inválidos ou conflito.")
+                    .build();
+            }
+            
+            return Response
+                    .created(UriBuilder.fromResource(FuncionarioResource.class)
+                            .path(String.valueOf(salvo.getId())).build())
+                    .entity(salvo)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Erro ao salvar funcionário: " + e.getMessage())
+                    .build();
+        }
     }
     
     @PUT

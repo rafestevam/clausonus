@@ -1,3 +1,4 @@
+// Esta é uma versão corrigida do seu FuncionarioResourceTest.java
 package br.com.rockambole.clausonus.funcionario.resource;
 
 import static io.restassured.RestAssured.given;
@@ -38,9 +39,8 @@ public class FuncionarioResourceTest {
     
     @BeforeEach
     public void setup() {
-        // Configurar RestAssured para usar apenas o path /api nos testes
-        // O Quarkus já adiciona automaticamente o /clausonus na configuração
-        RestAssured.basePath = "/api";
+        // Definindo o basePath para os testes
+        RestAssured.basePath = "/clausonus/api/funcionarios";
     }
 
     @Test
@@ -52,7 +52,7 @@ public class FuncionarioResourceTest {
 
         // Executar e verificar
         given()
-            .when().get("/funcionarios")
+            .when().get()
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -72,7 +72,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .queryParam("ativos", true)
-            .when().get("/funcionarios")
+            .when().get()
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -91,7 +91,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("id", 1)
-            .when().get("/funcionarios/{id}")
+            .when().get("/{id}")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -111,7 +111,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("id", 999)
-            .when().get("/funcionarios/{id}")
+            .when().get("/{id}")
             .then()
                 .statusCode(404);
     }
@@ -125,7 +125,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .queryParam("nome", "Funcionário")
-            .when().get("/funcionarios/busca")
+            .when().get("/busca")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -143,7 +143,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("cargo", "Analista")
-            .when().get("/funcionarios/cargo/{cargo}")
+            .when().get("/cargo/{cargo}")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -171,7 +171,7 @@ public class FuncionarioResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(funcionarioDTO)
-            .when().post("/funcionarios")
+            .when().post()
             .then()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
@@ -199,7 +199,7 @@ public class FuncionarioResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(funcionarioDTO)
-            .when().post("/funcionarios")
+            .when().post()
             .then()
                 .statusCode(400); // Bad Request devido à validação
     }
@@ -224,7 +224,7 @@ public class FuncionarioResourceTest {
             .contentType(ContentType.JSON)
             .pathParam("id", 1)
             .body(funcionarioDTO)
-            .when().put("/funcionarios/{id}")
+            .when().put("/{id}")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -244,7 +244,7 @@ public class FuncionarioResourceTest {
             .contentType(ContentType.JSON)
             .pathParam("id", 1)
             .body(senhaDTO)
-            .when().put("/funcionarios/{id}/senha")
+            .when().put("/{id}/senha")
             .then()
                 .statusCode(204);
 
@@ -257,11 +257,11 @@ public class FuncionarioResourceTest {
         FuncionarioDTO funcionarioAtualizado = new FuncionarioDTO(1L, "Funcionário Um", "12345678900", "Analista", "analista1", false);
         when(funcionarioService.alterarStatus(1L, false)).thenReturn(funcionarioAtualizado);
 
-        // Executar e verificar - usando o caminho correto para a API
+        // Executar e verificar
         given()
             .pathParam("id", 1)
             .queryParam("ativo", false)
-            .when().put("/funcionarios/{id}/status")
+            .when().put("/{id}/status")
             .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -277,7 +277,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("id", 1)
-            .when().delete("/funcionarios/{id}")
+            .when().delete("/{id}")
             .then()
                 .statusCode(204);
     }
@@ -291,7 +291,7 @@ public class FuncionarioResourceTest {
         // Executar e verificar
         given()
             .pathParam("id", 999)
-            .when().delete("/funcionarios/{id}")
+            .when().delete("/{id}")
             .then()
                 .statusCode(404);
     }
