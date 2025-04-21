@@ -78,19 +78,36 @@ dev-loja
 **/utils
 **/utils/** 
 
-# Gradle
+# Gradle specific
 .gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-
-# Ignore Gradle GUI config
+**/build/
+.gradletasknamecache
 gradle-app.setting
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+# Avoid ignoring Gradle wrapper jar file
 !gradle-wrapper.jar
 
-# Cache of project
-.gradletasknamecache
+# Local configuration file
+local.properties
+
+# Gradle work directories
+buildSrc/.gradle/
+buildSrc/build/
+
+# Gradle native
+.externalNativeBuild
+.cxx/
+
+# Gradle profiler
+gradle-profiler*
+profile-out*/
+
+# Gradle caches
+.gradle/buildOutputCleanup/
+.gradle/caches/
+.gradle/daemon/
+.gradle/native/
+.gradle/wrapper/
 
 # Eclipse Gradle plugin generated files
 # Eclipse Core
